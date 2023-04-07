@@ -4,6 +4,7 @@
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 import time
 
+import requests
 import scrapy
 from scrapy import signals
 
@@ -40,6 +41,8 @@ class TutorialSpiderMiddleware:
         for i in result:
             yield i
 
+
+
     def process_spider_exception(self, response, exception, spider):
         # Called when a spider or process_spider_input() method
         # (from other spider middleware) raises an exception.
@@ -59,6 +62,72 @@ class TutorialSpiderMiddleware:
     def spider_opened(self, spider):
         spider.logger.info("Spider opened: %s" % spider.name)
 
+
+class LoginMiddleware(object):
+
+    _cookies = None
+    _browser = None
+    def __init__(self):
+        options = webdriver.ChromeOptions()
+        # options.add_argument('--headless')
+        self.browser = webdriver.Chrome(chrome_options=options)
+        self.cookies = None
+
+    def __del__(self):
+        self.browser.quit()
+    def process_request(self,request,spider):
+        print("aaaaaname",spider.name)
+
+        if spider.name=="loginspider" :
+            print("cccv",request.url.find("login"))
+            if request.url.find("login")==-1  and self.cookies is None:
+                self.browser.get(request.url)
+                time.sleep(3)
+                print("login ",request.url)
+                email = self.browser.find_element(by = By.XPATH,value = '//input[@name="email"]')
+                password = self.browser.find_element(by = By.XPATH,value='//input[@name="password"]')
+
+
+                time.sleep(1)
+
+                email.send_keys("support@**.com")
+                password.send_keys("***~")
+                click = self.browser.find_element(by=By.XPATH,value='//button[@class="btn btn-primary"]')
+                click.click()
+                time.sleep(5)
+                self.cookies = self.browser.get_cookies()
+                print("cooo=====",self.cookies)
+                res = scrapy.http.HtmlResponse(url=request.url, body=self.browser.page_source.encode('utf-8'),
+                                               encoding='utf-8',
+                                               request=request, status=200)
+                print("33333")
+
+                return res
+            else:
+                print("cooo=====", self.cookies)
+                req = requests.session()
+                for cookie in self.cookies:
+                    req.cookies.set(cookie['name'],cookie["value"])
+
+                req.headers.clear()
+                newpage = req.get(request.url)
+                time.sleep(3)
+
+
+                time.sleep(3)
+
+                res = scrapy.http.HtmlResponse(url=request.url, body=newpage.text,
+                           encoding='utf-8',
+                           request=request, status=200)
+                print("55555")
+
+                return res
+        else:
+            print("tet")
+            pass
+
+
+
 class QuotesSpiderMiddleware(object):
 
     _timeout = 1
@@ -70,6 +139,8 @@ class QuotesSpiderMiddleware(object):
     _option = None
 
     def __init__(self):
+
+
         self.timeout = 3
 
 
@@ -83,29 +154,34 @@ class QuotesSpiderMiddleware(object):
 
 
 
+    def __del__(self):
+        self.driver.quit()
     def process_request(self, request, spider):
 
-        print("afddwfsdfsdfdsfdsf",self.timeout)
-
-        try:
-            self.driver.get(request.url)
+        if spider.name=="quotes":
 
 
-            print("1111111")
-            #self.wait.until(EC.presence_of_element_located((By.ID,"RevenueSurchargeHistory")),message="aaaaddadfasdfsdfccccc")
-            self.wait.until(lambda x: x.find_element(By.ID, "RevenueSurchargeHistory"))
-            print("222222")
-            res = scrapy.http.HtmlResponse(url=request.url, body=self.driver.page_source.encode('utf-8'), encoding='utf-8',
-                                 request=request, status=200)
-            print("33333")
+            print("afddwfsdfsdfdsfdsf",self.timeout)
+
+            try:
+                self.driver.get(request.url)
 
 
-            return res
-        except TimeoutError:
-            print("55555")
-            return None
-        finally:
-            self.driver.quit()
+                print("1111111")
+                #self.wait.until(EC.presence_of_element_located((By.ID,"RevenueSurchargeHistory")),message="aaaaddadfasdfsdfccccc")
+                self.wait.until(lambda x: x.find_element(By.ID, "RevenueSurchargeHistory"))
+                print("222222")
+                res = scrapy.http.HtmlResponse(url=request.url, body=self.driver.page_source.encode('utf-8'), encoding='utf-8',
+                                     request=request, status=200)
+                print("33333")
+
+
+                return res
+            except TimeoutError:
+                print("55555")
+                return None
+            finally:
+                pass
 
 
 
@@ -135,6 +211,7 @@ class TutorialDownloaderMiddleware:
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
+
 
         # Must either;
         # - return a Response object

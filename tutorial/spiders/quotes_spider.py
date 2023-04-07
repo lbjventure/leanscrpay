@@ -5,6 +5,9 @@ import scrapy
 
 class QuotesSpider(scrapy.Spider):
     name = "quotes"
+    custom_settings = {
+        'DOWNLOADER_MIDDLEWARES': {"tutorial.middlewares.QuotesSpiderMiddleware": 543}
+    }
 
     def start_requests(self):
         urls = [
