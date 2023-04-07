@@ -77,7 +77,7 @@ class QuotesSpiderMiddleware(object):
         self.option = webdriver.ChromeOptions()
         self.option.add_argument('headless')
         self.driver = webdriver.Chrome(chrome_options=self.option)
-        self.driver.maximize_window()
+        # self.driver.maximize_window()
         # request.meta.sefdefault("download_timeout",self._timeout)
         self.wait = WebDriverWait(self.driver, 10)
 

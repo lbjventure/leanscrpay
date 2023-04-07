@@ -51,9 +51,9 @@ LOG_LEVEL = 'WARN'
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-DOWNLOADER_MIDDLEWARES = {
-   "tutorial.middlewares.QuotesSpiderMiddleware": 543,
-}
+# DOWNLOADER_MIDDLEWARES = {
+#    "tutorial.middlewares.QuotesSpiderMiddleware": 543,
+# }
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
